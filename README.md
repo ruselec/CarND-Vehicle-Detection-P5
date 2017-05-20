@@ -56,7 +56,7 @@ I trained a linear SVM using LinearSVC() from sklearn.svm. I used combined color
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I use HOG Sub-sampling windows search. Small windows (64x64) are located at the center of the image and large windows (96x96) are located closer to the bottom of the image. The default overlap of 2 cells by step works good. I decide use only two scale because of time limiting 1 second for each image. The code for this step is contained in the eighth and ninth code cells of the IPython notebook.
+I used HOG Sub-sampling windows search. Small windows (64x64) are located at the center of the image and large windows (96x96) are located closer to the bottom of the image. The default overlap of 2 cells by step works good. I decide use only two scale because of time limiting (1 second for each image). The code for this step is contained in the eighth and ninth code cells of the IPython notebook.
 
 Below results are shown for test images.
 
