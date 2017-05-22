@@ -32,9 +32,9 @@ I started by reading in all the `vehicle` and `non-vehicle` images.  The code fo
 
 Then I wrote functions for getting color, spatial, hog features from the lessons. The code for this step is contained in the second code cell of the IPython notebook.
 
-I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like. The code for this step is contained in the third code cell of the IPython notebook.
+I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed 3 random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like. The code for this step is contained in the third code cell of the IPython notebook.
 
-Here is an example using the `YCrCb` color space and HOG parameters of `orientations=9`, `pixels_per_cell=8` and `cells_per_block=2`:
+Here is an example using the `LUV` color space and HOG parameters of `orientations=9`, `pixels_per_cell=16` and `cells_per_block=2`:
 
 ![alt text][image2]
 
@@ -42,21 +42,27 @@ Here is an example using the `YCrCb` color space and HOG parameters of `orientat
 
 I tried various combinations of HOG parameters and stopped on the following:
 
-    colorspace = 'YCrCb'
+    colorspace = 'LUV'
     orient = 9
-    pix_per_cell = 8
+    pix_per_cell = 16
     cell_per_block = 2
-    hog_channel = 0
+    hog_channel = "ALL"
+    
+These were the parameters which led to the best classification accuracy on the training data (99.89%). I used `pix_per_cell = 16` because this value is tradeoff between feature vector length (1356) and accuracy. I used the HOG features from all 3 color channels in order to get the most consistent results in the project video.
     
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-I trained a linear SVM using LinearSVC() from sklearn.svm. I used combined color, spatial, hog features for training SVM model. Before training the data, the data was normalized using StandardScaler() from sklearn.preprocessing. Then these normalized data were splitted into train and test sets with proportion 80% for train and 20 % for test sets. The code for this step is contained in the fourth code cell of the IPython notebook.
+I trained a linear SVM using LinearSVC() from sklearn.svm. I used combined color and hog features for training SVM model. Before training the data, the data was normalized using StandardScaler() from sklearn.preprocessing. Then these normalized data were splitted into train and test sets with proportion 80% for train and 20 % for test sets. The code for this step is contained in the fourth and fifth code cells of the IPython notebook.
 
 ### Sliding Window Search
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I used HOG Sub-sampling windows search. Small windows (64x64) are located at the center of the image and large windows (96x96) are located closer to the bottom of the image. The default overlap of 2 cells by step works good. I decide use only two scale because of time limiting (1 second for each image). The code for this step is contained in the eighth and ninth code cells of the IPython notebook.
+I used HOG Sub-sampling windows search. I used 3 sizes of windows to detect vehicles on different locations of the road. 
+* small windows (51x51) are located from 400 to 480 on y axis 
+* medium windows (96x96) are located from 400 to 650 on y axis 
+* large windows (128x128) are located from 400 to 700 on y axis. 
+The search started from 400 on x axis to eliminate detection of vehicles on left lane of the road. The default overlap of 2 cells by step is changed to 1 to increase number search windows. The code for this step is contained in the 10th and 11th code cells of the IPython notebook.
 
 Below results are shown for test images.
 
@@ -64,7 +70,7 @@ Below results are shown for test images.
 
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-When a car is detected, multiple boxes are drawn on the car, so I used a heatmap to combine boxes into a single box. To remove false positive I used threshold. Then I used label() from scipy.ndimage.measurements to draw box around detected cars. The code for this step is contained in the 10th and 11th code cells of the IPython notebook.
+When a car is detected, multiple boxes are drawn on the car, so I used a heatmap to combine boxes into a single box. To remove false positive I used threshold. Then I used label() from scipy.ndimage.measurements to draw box around detected cars. The code for this step is contained in the 12th and 13th code cells of the IPython notebook.
 
 Below results are shown to demonstrate how pipeline is working.
 
@@ -91,7 +97,7 @@ Here are ten frames and their corresponding heatmaps:
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-* The pipeline is not a real-time. It takes about 1 fps with Lane line detection. To decrease time for frame processing I think to wrap C++ function for hog features extraction.
+* The pipeline is not a real-time. It takes about 1 fps with Lane line detection. To decrease time for frame processing I think to wrap C++ function for hog features extraction. Another approaches as YOLO or SSD may be used to improve fps.
 
-* The algorithm may fail in different light conditions, in detection of pedastrains, motobykes and other vehicles having different forms. To make it more robust it needs train classifier on datasets including pedastrains, motobykes and other vehicles.
+* The algorithm may fail in different light conditions, in detection of pedastrains, motorbikes and other vehicles having different forms. To make it more robust it needs train classifier on datasets including pedastrains, motobykes and other vehicles.
 
